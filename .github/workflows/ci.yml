@@ -1,0 +1,15 @@
+on: [push, pull_request]
+
+name: CI
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v20
+      - run: nix build .#docker
+      - name: Push image
+        if: github.ref == 'refs/heads/main'
+        run: |
+          skopeo copy --dest-creds="${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_TOKEN }}" "docker-archive:$(nix build .#docker --print-out-paths)" "docker://demostf/maps"
