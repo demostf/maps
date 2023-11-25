@@ -6,8 +6,14 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: nschloe/action-cached-lfs-checkout@v1
       - uses: cachix/install-nix-action@v20
+      - uses: icewind1991/attic-action@v1
+        with:
+          name: ci
+          instance: https://cache.icewind.me
+          authToken: '${{ secrets.ATTIC_TOKEN }}'
       - run: nix build .#docker
       - name: Push image
         if: github.ref == 'refs/heads/main'
